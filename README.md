@@ -1,59 +1,226 @@
 # protein-structure-prediction
 protein-structure-prediction
-Protein Structure Prediction with Deep Learning
-使用深度學習進行蛋白質結構預測
 
-Project Type: AI / Deep Learning / Bioinformatics
-Environment: Kaggle Notebook
-Framework: Python, TensorFlow / Keras
-Base Project: MiniFold
-Status: Work in Progress（持續開發中）
+使用深度學習進行蛋白質距離預測
+Protein Distance Prediction with Deep Learning
 
-1. Project Overview｜專案簡介
-中文介紹
+專案類型： 人工智慧、深度學習、生物資訊
+開發環境： Kaggle Notebook
+使用語言： Python
+深度學習框架： Keras / TensorFlow
+基礎專案： MiniFold
+目前狀態： 持續開發與實驗驗證中
+
+一、專案簡介
 
 本專案以開源 MiniFold 專案為基礎，嘗試在 Kaggle Notebook 環境中建立蛋白質殘基間距離預測模型的資料處理與訓練流程。
 
-蛋白質的三維結構與其生物功能密切相關。透過深度學習分析蛋白質序列、演化資訊及已知結構資料，可以訓練模型預測不同胺基酸殘基之間的距離關係，作為後續蛋白質結構分析與重建的參考。
+蛋白質的三維結構與其生物功能密切相關。透過分析蛋白質序列、演化資訊及已知結構資料，可以利用深度學習模型學習不同胺基酸殘基之間的空間距離關係，作為後續蛋白質結構分析與重建的參考。
 
-本專案著重於理解既有深度學習模型的架構、資料處理方式、訓練流程，以及在實際執行環境中進行程式相容性調整與實驗驗證。
+本專案主要著重於理解既有深度學習模型的架構、資料處理方式，以及模型訓練流程，並嘗試調整原始程式碼，使其能在目前的 Kaggle 執行環境中運作。
 
-目前專案仍處於實作與驗證階段，尚未宣稱完成模型效能驗證或蛋白質三維結構重建。
+目前專案仍處於實作與驗證階段，尚未完成完整的模型效能評估與蛋白質三維結構重建。
 
-English Description
+二、專案目標
 
-This project explores protein residue distance prediction using deep learning, based on the open-source MiniFold project.
+本專案的主要目標如下：
 
-The implementation is conducted in a Kaggle Notebook environment. The work focuses on understanding the model architecture, inspecting protein data, adapting legacy code for compatibility with the execution environment, and establishing a model training workflow.
+理解深度學習在蛋白質結構預測領域的應用。
+整理與檢查蛋白質序列及結構資料。
+理解蛋白質殘基間距離預測模型的輸入、輸出與運作方式。
+調整既有 Keras 程式碼，以改善與目前執行環境的相容性。
+建立模型資料生成、載入、檢查與訓練流程。
+記錄實驗過程、執行問題與後續改善方向。
+三、研究流程
 
-The current implementation is a work in progress. Model performance evaluation and three-dimensional structure reconstruction have not yet been established as completed results.
+目前的實作流程如下：
 
-2. Project Objectives｜專案目標
-Understand the fundamentals of deep learning for protein structure prediction.
-Inspect and preprocess protein sequence and structural data.
-Adapt an existing Keras-based model to a modern execution environment.
-Validate input and target tensor shapes before training.
-Establish a reproducible training workflow.
-Evaluate model performance and document limitations in future iterations.
+蛋白質資料集
+      │
+      ▼
+資料讀取與格式檢查
+      │
+      ▼
+蛋白質序列長度篩選
+      │
+      ▼
+MiniFold 資料生成器
+      │
+      ├── 輸入特徵
+      │
+      └── 距離分類標籤
+                │
+                ▼
+        二維殘差神經網路
+          （2D ResNet）
+                │
+                ▼
+        七類距離分類預測
+                │
+                ▼
+        後續模型評估與分析
 
-中文目標：
 
-理解深度學習在蛋白質結構預測中的應用。
-檢查與整理蛋白質序列及結構資料。
-調整既有 Keras 模型程式，以改善環境相容性。
-驗證模型輸入與標籤的張量形狀。
-建立可重現的訓練流程。
-在後續實驗中評估模型效能並記錄限制。
-3. Methodology｜研究方法
-Data Processing｜資料處理
+本專案目前聚焦於資料處理、模型載入、相容性調整及訓練流程建置，後續將繼續確認模型效能與預測結果。
 
-The project uses protein records containing sequence information, evolutionary features, and structural information.
+四、資料處理
+4.1 蛋白質資料讀取
 
-目前已進行的資料處理工作包括：
+本專案使用包含蛋白質序列、演化資訊及結構資訊的資料紀錄，並透過 Python 進行資料檢查與篩選。
 
-讀取 ProteinNet 格式的蛋白質紀錄。
-依據胺基酸序列長度篩選小於 200 個 residue 的蛋白質。
-檢查資料中的 [ID]、[PRIMARY]、[EVOLUTIONARY]、[TERTIARY] 與 [DIST] 等欄位。
-使用 MiniFold 的資料生成器建立模型訓練所需的輸入與目標張量。
+目前曾檢查的資料欄位包括：
 
-Data note: The relationship between the initially filtered dataset and the final
+[ID]：蛋白質紀錄識別碼。
+[PRIMARY]：蛋白質胺基酸序列。
+[EVOLUTIONARY]：演化相關資訊。
+[TERTIARY]：三維結構座標資訊。
+[DIST]：距離相關資料欄位。
+4.2 序列長度篩選
+
+在初始資料處理階段，使用 Python 篩選胺基酸序列長度小於 200 的蛋白質紀錄。
+
+初始資料檢查結果如下：
+
+項目	數量
+原始蛋白質紀錄	10,333
+長度小於 200 的蛋白質	6,489
+長度大於或等於 200 的蛋白質	3,844
+
+上述數據來自先前對 training_30.txt 的檢查。
+
+後續訓練使用的 Kaggle 資料集則記錄有 636 筆蛋白質紀錄。目前仍需進一步確認這 636 筆資料與初始篩選資料之間的來源、篩選條件及處理關係。
+
+因此，上述數量分別代表不同階段的資料紀錄，不應直接視為同一份資料集的最終統計結果。
+
+五、模型架構與輸入輸出
+
+目前使用的 MiniFold 模型屬於蛋白質殘基間距離分類任務，採用二維殘差神經網路處理殘基配對特徵。
+
+5.1 模型輸入
+
+實際載入模型後，取得的輸入形狀為：
+
+(None, 200, 200, 42)
+
+
+各維度的意義如下：
+
+None：批次大小，可依訓練設定改變。
+第一個 200：蛋白質殘基位置維度。
+第二個 200：與另一個殘基位置配對的維度。
+42：每個位置配對所使用的特徵通道數。
+
+模型使用二維特徵表示蛋白質中不同殘基位置之間的關係。
+
+目前已確認輸入具有 42 個特徵通道，但各通道的精確定義，仍需依據實際使用的資料生成器程式碼進一步確認。
+
+5.2 模型輸出
+
+實際載入模型後，取得的輸出形狀為：
+
+(None, 200, 200, 7)
+
+
+各維度的意義如下：
+
+None：批次大小。
+200 × 200：殘基位置配對矩陣。
+7：每一對殘基的七個距離類別輸出。
+
+因此，目前使用的模型不是直接預測四個二面角表示值，而是針對每一對殘基輸出七個距離類別的預測值。
+
+七個類別各自對應的距離區間與單位，仍需依據原始模型及資料生成器的實作確認。
+
+六、模型訓練設定
+
+目前 Notebook 中使用的主要設定如下：
+
+設定項目	目前設定
+最大蛋白質紀錄數	636
+Batch size	2
+Crop size	200
+Padding size	200
+輸出類別數	7
+最佳化器	Adam
+初始學習率	0.001
+類別權重	七個類別均設為 1.0
+訓練輪數	曾設定為 1 epoch
+
+上述內容是目前實驗的設定紀錄，不代表模型已經完成訓練或取得良好的預測效能。
+
+目前也需要進一步確認訓練與驗證資料的劃分方式，以避免使用訓練資料評估模型而高估實際效能。
+
+七、已完成的實作工作
+
+根據目前的 Notebook 紀錄，已進行以下工作：
+
+使用 Python 讀取蛋白質資料並檢查紀錄數量。
+篩選胺基酸序列長度小於 200 的蛋白質。
+設定 Kaggle 資料集路徑。
+調整部分舊版 Keras 的圖層匯入方式。
+修正已棄用的 NumPy 整數型別寫法。
+調整 Softmax 的運算軸設定。
+修改加權類別交叉熵損失函數的實作。
+載入既有模型並檢查輸入、輸出形狀。
+建立資料生成器並檢查輸入與目標張量。
+設定最佳化器、損失函數及模型訓練流程。
+
+以上工作是以既有 MiniFold 開源程式為基礎進行。原始專案的作者資訊及授權條款應予保留；後續也將進一步整理自行修改的程式內容與修改原因。
+
+八、初步檢查結果
+
+目前已取得以下資料生成器檢查結果：
+
+Proteins = 636
+Generator length = 318
+
+Input shape  = (2, 200, 200, 42)
+Target shape = (2, 200, 200, 7)
+
+
+在已檢查的批次中：
+
+輸入張量的數值皆為有限值。
+目標張量的數值皆為有限值。
+目標張量最後一維的總和介於 1 至 1 之間。
+
+這些結果表示，在所檢查的批次中，資料生成器產生的張量具有預期的維度，且目標資料符合每個位置配對對應一個類別標籤的表示方式。
+
+不過，這些檢查只能證明部分資料格式與數值狀態符合預期，不能直接代表模型已具備良好的預測能力。
+
+九、目前限制與後續規劃
+
+目前仍有以下工作需要完成：
+
+確認最終使用資料集的來源及篩選歷程。
+確認 42 個輸入特徵通道的實際定義。
+確認七個距離類別的區間與單位。
+確認模型是否完成訓練，以及訓練過程是否穩定。
+建立適當的訓練集與驗證集劃分。
+記錄實際訓練損失與驗證結果。
+使用合適的指標評估距離分類預測品質。
+依據研究結果評估後續蛋白質三維結構重建的可行性。
+
+後續將依據實際執行結果補充實驗紀錄，並逐步改善模型與資料處理流程。
+
+十、原始專案與參考來源
+MiniFold 原始專案
+
+GitHub：
+https://github.com/hypnopump/MiniFold
+
+本專案以 MiniFold 開源程式為實作基礎，並在 Kaggle 環境中進行部分程式修改與實驗。
+
+原始作者、授權條款及相關研究引用資訊，將依據實際使用的版本與授權內容適當標示。
+
+蛋白質資料集的來源與引用方式，也應依照實際使用的資料版本補充。
+
+十一、專案狀態
+
+目前狀態：持續開發與實驗驗證中
+
+本專案記錄從蛋白質資料處理、既有模型理解、執行環境相容性調整，到模型訓練流程建置的實作過程。
+
+目前已完成部分資料檢查、模型載入及訓練設定，後續將持續驗證訓練結果、分析模型效能，並整理研究過程中的問題與改善方向。
+
+本專案的目標不僅是執行既有模型，也希望透過實際實驗，建立對深度學習模型、資料處理與蛋白質結構預測方法的理解。
