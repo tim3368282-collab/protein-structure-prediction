@@ -1,6 +1,6 @@
 MiniFold：基於 ResNet 的蛋白質距離預測模型
 
-1. 專案介紹（Project Overview）
+1.專案介紹（Project Overview）
 
 本專案參考 MiniFold 原始專案，使用 TensorFlow / Keras 建立並訓練一個基於 ResNet V2 的蛋白質距離預測模型。
 
