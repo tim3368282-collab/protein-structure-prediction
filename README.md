@@ -586,17 +586,8 @@ per_class_metrics.png
 ```
 比較各距離分類的 Precision、Recall 與 F1-score。
 
-13. 評估輸出檔案（Evaluation Output）
 
-所有評估結果儲存於：
-```text
-
-/kaggle/working/MiniFold_Evaluation
-```
-
-
-
-14. 實驗結果總結（Key Findings）
+13. 實驗結果總結（Key Findings）
 
 本次成功使用 636 筆蛋白質資料完成 MiniFold-based ResNet 模型的訓練與評估。
 ```text
