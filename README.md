@@ -378,11 +378,11 @@ model.load_weights(WEIGHT_PATH)
 8. 模型評估（Model Evaluation）
 
 本次使用全部 636 筆蛋白質資料進行預測與評估。
-```text
+
 總共處理：
 
 8,442,750 組 Residue Pairs
-
+```text
 8.1 整體評估結果
 評估指標	結果
 Overall Accuracy	42.17%
@@ -393,16 +393,18 @@ Prediction Symmetry	60.00%
 Total Proteins	636
 Total Residue Pairs	8,442,750
 ```
-整體分類準確率：
 
+整體分類準確率：
+```text
 text
 Overall Accuracy: 0.42168854934707295
 
-
+```
 模型整體 Accuracy 約為 42.17%。
 
-9. 各距離分類效能分析（Per-Class Evaluation）
 
+9. 各距離分類效能分析（Per-Class Evaluation）
+```text
 以下為六個有效距離分類的 Precision、Recall 與 F1-score。
 
 Distance Class	Precision	Recall	F1-score
@@ -442,6 +444,8 @@ Greater than 1700
 Precision 達到 82%，是所有分類中最高的類別。
 但 Recall 只有 43%。
 模型明顯低估此距離分類的數量。
+```text
+
 10. 距離分類分布分析（Class Distribution）
 
 比較 Ground Truth 與 Prediction 在不同距離分類中的數量。
