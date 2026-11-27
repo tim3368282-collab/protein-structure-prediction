@@ -569,9 +569,7 @@ Prediction Transpose
 視覺化模型的預測準確率。
 
 12.5 Training History
-```text
-05_training_history.png@@
-```
+![Training History](result/05_training_history.png)
 顯示模型訓練過程中的 Accuracy 與 Loss 變化。
 
 12.6 Confusion Matrix
