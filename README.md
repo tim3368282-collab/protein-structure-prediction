@@ -484,11 +484,11 @@ Ground Truth 有 5,055,078 組 Residue Pairs，但 Prediction 只有 2,651,938 �
 本次評估中，最值得注意的問題是模型預測矩陣的對稱性不足。
 
 11.1 對稱性評估結果
-/*
+```text
 Matrix	Symmetry
 Ground Truth	100%
 Prediction	60.00%
-*/
+```
 
 對於蛋白質距離矩陣而言，任意兩個胺基酸殘基之間的距離應符合：
 
