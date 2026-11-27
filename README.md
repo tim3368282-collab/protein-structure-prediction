@@ -537,15 +537,11 @@ Class Balancing：改善不同距離分類之間的資料不平衡問題。
 本專案產生多張圖表，用於比較 Ground Truth 與模型 Prediction 的差異。
 
 12.1 Ground Truth vs Prediction
-```text
-01_ground_truth_vs_prediction.png@@
-```
+![Ground Truth vs Prediction](result/01_ground_truth_vs_prediction.png)
 比較實際距離分類矩陣與模型預測矩陣。
 
 12.2 Symmetry Comparison
-```text
-02_symmetry.png@@
-```
+![Symmetry Comparison](result/02_symmetry.png)
 
 比較：
 ```text
@@ -557,33 +553,21 @@ Prediction Transpose
 用來觀察模型預測矩陣的對稱性。
 
 12.3 Class Distribution
-```text
-03_class_distribution.png@@
-```
+![Class Distribution](result/03_class_distribution.png)
 比較 Ground Truth 與 Prediction 在六個有效距離分類中的數量差異。
 
-12.4 Prediction Accuracy
-```text
-04_prediction_accuracy.png@@
-```
-視覺化模型的預測準確率。
 
-12.5 Training History
+12.4 Training History
 ![Training History](result/05_training_history.png)
 顯示模型訓練過程中的 Accuracy 與 Loss 變化。
 
-12.6 Confusion Matrix
-```text
-confusion_matrix.png
-```
-呈現各個距離分類之間的預測結果與錯誤分類情況。
+12.5 Confusion Matrix & Per-Class Prediction Metrics
 
-12.7 Per-Class Prediction Metrics
+![Confusion Matrix & Per-Class Prediction Metrics](result/04_prediction_accuracy.png)
 ```text
-per_class_metrics.png
+Confusion Matrix呈現各個距離分類之間的預測結果與錯誤分類情況。
+per_class_metrics比較各距離分類的 Precision、Recall 與 F1-score。
 ```
-比較各距離分類的 Precision、Recall 與 F1-score。
-
 
 13. 實驗結果總結（Key Findings）
 
