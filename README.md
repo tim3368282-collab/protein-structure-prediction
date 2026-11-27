@@ -523,13 +523,13 @@ Residue j 到 Residue i 的距離
 11.3 未來改善方向
 
 後續可以考慮：
-
+```text
 Symmetric Post-processing：在預測完成後，透過轉置矩陣進行對稱化處理。
 Symmetry-aware Loss：在 Loss Function 中加入對稱性限制。
 Symmetric Feature Engineering：改善輸入特徵的對稱性設計。
 Symmetric Architecture：設計能夠直接保證輸出對稱性的模型架構。
 Class Balancing：改善不同距離分類之間的資料不平衡問題。
-
+```
 對稱性將會是後續模型改善的重要研究方向。
 
 12. 評估結果視覺化（Evaluation Visualization）
@@ -537,91 +537,69 @@ Class Balancing：改善不同距離分類之間的資料不平衡問題。
 本專案產生多張圖表，用於比較 Ground Truth 與模型 Prediction 的差異。
 
 12.1 Ground Truth vs Prediction
-
-01_ground_truth_vs_prediction.png
-
+```text
+01_ground_truth_vs_prediction.png@@
+```
 比較實際距離分類矩陣與模型預測矩陣。
 
 12.2 Symmetry Comparison
-
-02_symmetry.png
+```text
+02_symmetry.png@@
+```
 
 比較：
-
+```text
 Ground Truth
 Ground Truth Transpose
 Prediction
 Prediction Transpose
-
+```
 用來觀察模型預測矩陣的對稱性。
 
 12.3 Class Distribution
-
-03_class_distribution.png
-
+```text
+03_class_distribution.png@@
+```
 比較 Ground Truth 與 Prediction 在六個有效距離分類中的數量差異。
 
 12.4 Prediction Accuracy
-
-04_prediction_accuracy.png
-
+```text
+04_prediction_accuracy.png@@
+```
 視覺化模型的預測準確率。
 
 12.5 Training History
-
-05_training_history.png
-
+```text
+05_training_history.png@@
+```
 顯示模型訓練過程中的 Accuracy 與 Loss 變化。
 
 12.6 Confusion Matrix
-
+```text
 confusion_matrix.png
-
+```
 呈現各個距離分類之間的預測結果與錯誤分類情況。
 
 12.7 Per-Class Prediction Metrics
-
+```text
 per_class_metrics.png
-
+```
 比較各距離分類的 Precision、Recall 與 F1-score。
 
 13. 評估輸出檔案（Evaluation Output）
 
 所有評估結果儲存於：
+```text
 
-text
 /kaggle/working/MiniFold_Evaluation
+```
 
 
-輸出資料夾結構：
-
-text
-MiniFold_Evaluation/
-│
-├── 01_ground_truth_vs_prediction.png
-├── 02_symmetry.png
-├── 03_class_distribution.png
-├── 04_prediction_accuracy.png
-├── 05_training_history.png
-│
-├── class_distribution.csv
-├── evaluation_summary.json
-├── prediction_metrics.csv
-└── protein_evaluation.csv
-
-
-完整評估結果另外壓縮為：
-
-text
-MiniFold_Evaluation.zip
-
-
-其中包含預測視覺化圖表、分類統計資料及各蛋白質的評估結果。
 
 14. 實驗結果總結（Key Findings）
 
 本次成功使用 636 筆蛋白質資料完成 MiniFold-based ResNet 模型的訓練與評估。
-
+```text
 主要成果如下：
 
 資料集建立成功：成功載入 636 筆蛋白質名稱、序列、PSSM 與距離矩陣。
@@ -631,11 +609,11 @@ MiniFold_Evaluation.zip
 整體準確率：Overall Accuracy 達到 42.17%。
 分類效能分析：不同距離區間具有不同的 Precision、Recall 與 F1-score。
 對稱性問題：Ground Truth Symmetry 為 100%，但 Prediction Symmetry 只有約 60%。
-
+```
 其中，預測矩陣的對稱性是目前最需要進一步研究與改善的問題。
 
 15. 未來研究方向（Future Improvements）
-
+```text
 針對本次實驗結果，未來可以從以下方向改善：
 
 改善 Distance Class 的資料不平衡問題。
@@ -646,7 +624,7 @@ MiniFold_Evaluation.zip
 比較不同 ResNet Depth 對預測結果的影響。
 嘗試不同的 Learning Rate 與 Batch Size。
 研究 Prediction Post-processing 對最終結果的影響。
-
+```
 透過上述改善，希望能夠提升模型的距離分類準確率，並使預測結果更符合蛋白質距離矩陣的基本特性。
 
 16. 結論（Conclusion）
@@ -654,19 +632,20 @@ MiniFold_Evaluation.zip
 本專案成功建立一套基於 MiniFold 與 ResNet V2 的蛋白質距離預測流程，涵蓋資料集前處理、特徵工程、模型訓練、預測及評估。
 
 使用 636 筆蛋白質資料進行實驗，最終模型達到：
-
+```text
 Evaluation Metric	Result
 Overall Accuracy	42.17%
 Macro Precision	38.70%
 Macro Recall	47.61%
 Macro F1-score	39.05%
 Prediction Symmetry	60.00%
-
+```
 實驗結果顯示，模型已具備一定程度的蛋白質殘基距離分類能力，但在不同距離區間的分類表現及預測矩陣對稱性方面仍有改善空間。
 
 本次研究也找出一般 2D ResNet 架構在蛋白質距離矩陣預測上的一項重要限制，可作為後續模型架構與訓練策略改良的研究基礎。
 
 17. 參考資料（References）
+```text
 MiniFold Original Repository
 TensorFlow 官方文件
 Keras 官方文件
@@ -690,3 +669,5 @@ Scikit-learn 官方文件
 模型權重： best.weights.h5
 
 開發環境： Kaggle Notebook / Python / TensorFlow / Keras
+```
+
