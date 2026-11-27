@@ -36,7 +36,7 @@ DATA_PATH = "/kaggle/input/datasets/timjas/full-under-200-txt/full_under_200.txt
 資料內容包含蛋白質名稱、胺基酸序列、PSSM 及距離矩陣。
 
 本次實驗選擇長度小於或等於 200 個胺基酸殘基的蛋白質作為訓練資料。
-
+```text
 資料集統計
 資料類型	數量
 Protein Names	636
@@ -53,6 +53,8 @@ Protein ID：蛋白質識別名稱
 Sequence：胺基酸序列
 PSSM：位置特異性評分矩陣
 Distance Matrix：蛋白質殘基之間的 Ground Truth 距離矩陣
+```
+
 3. 特徵工程（Feature Engineering）
 
 為了讓 ResNet 能夠處理蛋白質序列資訊，本專案將每筆蛋白質資料轉換為固定大小的二維特徵矩陣。
