@@ -164,7 +164,7 @@ Class	Distance Range
 4	1000–1400
 5	1400–1700
 6	Greater than 1700
-```text
+```
 透過 One-Hot Encoding 將距離矩陣轉換成 7 個 Channel。
 
 3.4 最終模型輸入格式
