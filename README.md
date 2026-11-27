@@ -396,7 +396,7 @@ Total Residue Pairs	8,442,750
 
 整體分類準確率：
 ```text
-text
+
 Overall Accuracy: 0.42168854934707295
 
 ```
@@ -414,8 +414,13 @@ Distance Class	Precision	Recall	F1-score
 1000–1400	24%	35%	29%
 1400–1700	18%	29%	23%
 Greater than 1700	82%	43%	57%
+
+```
+
 分類結果觀察
 
+
+```text
 0–500
 
 Recall 達到 81%。
@@ -444,7 +449,7 @@ Greater than 1700
 Precision 達到 82%，是所有分類中最高的類別。
 但 Recall 只有 43%。
 模型明顯低估此距離分類的數量。
-```text
+```
 
 10. 距離分類分布分析（Class Distribution）
 
