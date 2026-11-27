@@ -349,7 +349,7 @@ best.weights.h5
 
 訓練紀錄：
 ```text
-./evaluation/training_log.csv
+./model/training_log.csv
 ```
 載入已訓練模型
 
