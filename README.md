@@ -338,20 +338,18 @@ Loss 是否持續下降
 
 訓練完成後，模型權重儲存為：
 
-text
+
 best.weights.h5
 
 
 模型權重位置：
 ```text
-python
-/kaggle/input/datasets/timjas/model-minifold/best.weights.h5
+./model/best.weights.h5
 ```
 
 訓練紀錄：
 ```text
-python
-/kaggle/input/datasets/timjas/model-minifold/training_log.csv
+./evaluation/training_log.csv
 ```
 載入已訓練模型
 
