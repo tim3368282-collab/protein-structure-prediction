@@ -310,35 +310,29 @@ from keras.layers import MaxPooling2D, AveragePooling2D
 
 本專案使用 Training History 繪製訓練過程中的 Accuracy 與 Loss 變化。
 
-6.1 Training vs Validation Accuracy
+6.1 Training vs Validation : Accuracy & Loss
 
-檔案名稱：
-```text
-training_accuracy.png @@
-```
-比較訓練集與驗證集在不同 Epoch 的 Accuracy 變化。
+![Training vs Validation : Accuracy & Loss](result/05_training_history.png)
+
+Accuracy比較訓練集與驗證集在不同 Epoch 的 Accuracy 變化。
 
 主要觀察：
-
+```text
 模型是否逐漸學習特徵
 訓練與驗證表現是否存在差距
 是否有 Overfitting 現象
 模型學習是否穩定
-
-6.2 Training vs Validation Loss
-
-檔案名稱：
-```text
-training_loss.png@@
 ```
-比較 Training Loss 與 Validation Loss 的變化。
+
+Loss比較訓練集與驗證集在不同 Epoch 的 Accuracy 變化。
 
 主要觀察：
-
+```text
 模型是否逐漸收斂
 Loss 是否持續下降
 訓練過程是否穩定
 是否存在過度擬合現象
+```
 
 7. 訓練模型權重（Trained Model Weights）
 
@@ -561,14 +555,7 @@ Prediction Transpose
 比較 Ground Truth 與 Prediction 在六個有效距離分類中的數量差異。
 ```
 
-12.4 Training History
-![Training History](result/05_training_history.png)
-說明:
-```text
-顯示模型訓練過程中的 Accuracy 與 Loss 變化。
-```
-
-12.5 Confusion Matrix & Per-Class Prediction Metrics
+12.4 Confusion Matrix & Per-Class Prediction Metrics
 
 ![Confusion Matrix & Per-Class Prediction Metrics](result/04_prediction_accuracy.png)
 說明:
