@@ -8,6 +8,7 @@ MiniFold：基於 ResNet 的蛋白質距離預測模型
 
 透過 Feature Engineering 將蛋白質序列轉換成二維特徵矩陣，再利用深度學習模型學習殘基之間的距離關係。
 
+```text
 本專案主要包含：
 
 蛋白質資料集讀取與前處理
@@ -24,6 +25,9 @@ Ground Truth 與 Prediction 比較
 原始 MiniFold Repository：https://github.com/hypnopump/MiniFold
 訓練環境：Kaggle Notebook
 模型權重：best.weights.h5
+
+```
+
 2. 資料集介紹（Dataset Preparation）
 資料來源
 
