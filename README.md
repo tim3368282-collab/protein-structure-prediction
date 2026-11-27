@@ -1,224 +1,674 @@
-# protein-structure-prediction
-protein-structure-prediction
+MiniFold：基於 ResNet 的蛋白質距離預測模型
+1. 專案介紹（Project Overview）
 
-使用深度學習進行蛋白質距離預測
-Protein Distance Prediction with Deep Learning
+本專案參考 MiniFold 原始專案，使用 TensorFlow / Keras 建立並訓練一個基於 ResNet V2 的蛋白質距離預測模型。
 
-專案類型： 人工智慧、深度學習、生物資訊
-開發環境： Kaggle Notebook
-使用語言： Python
-深度學習框架： Keras / TensorFlow
-基礎專案： MiniFold
-目前狀態： 持續開發與實驗驗證中
+專案主要目標是利用蛋白質胺基酸序列（Amino Acid Sequence）及位置特異性評分矩陣（Position-Specific Scoring Matrix, PSSM），預測蛋白質中不同胺基酸殘基（Residue）之間的距離分類。
 
-一、專案簡介
+透過 Feature Engineering 將蛋白質序列轉換成二維特徵矩陣，再利用深度學習模型學習殘基之間的距離關係。
 
-本專案以開源 MiniFold 專案為基礎，嘗試在 Kaggle Notebook 環境中建立蛋白質殘基間距離預測模型的資料處理與訓練流程。
+本專案主要包含：
 
-蛋白質的三維結構與其生物功能密切相關。透過分析蛋白質序列、演化資訊及已知結構資料，可以利用深度學習模型學習不同胺基酸殘基之間的空間距離關係，作為後續蛋白質結構分析與重建的參考。
+蛋白質資料集讀取與前處理
+胺基酸序列特徵工程
+PSSM 特徵擷取
+Ground Truth Distance Matrix 製作
+ResNet V2 模型建立與訓練
+Training / Validation Accuracy 與 Loss 分析
+蛋白質距離預測
+Ground Truth 與 Prediction 比較
+預測矩陣對稱性分析
+分類效能評估與視覺化
+專案參考來源
+原始 MiniFold Repository：https://github.com/hypnopump/MiniFold
+訓練環境：Kaggle Notebook
+模型權重：best.weights.h5
+2. 資料集介紹（Dataset Preparation）
+資料來源
 
-本專案主要著重於理解既有深度學習模型的架構、資料處理方式，以及模型訓練流程，並嘗試調整原始程式碼，使其能在目前的 Kaggle 執行環境中運作。
+本專案使用以下資料集：
 
-目前專案仍處於實作與驗證階段，尚未完成完整的模型效能評估與蛋白質三維結構重建。
-
-二、專案目標
-
-本專案的主要目標如下：
-
-理解深度學習在蛋白質結構預測領域的應用。
-整理與檢查蛋白質序列及結構資料。
-理解蛋白質殘基間距離預測模型的輸入、輸出與運作方式。
-調整既有 Keras 程式碼，以改善與目前執行環境的相容性。
-建立模型資料生成、載入、檢查與訓練流程。
-記錄實驗過程、執行問題與後續改善方向。
-三、研究流程
-```text
-目前的實作流程如下：
-
-蛋白質資料集
-      │
-      ▼
-資料讀取與格式檢查
-      │
-      ▼
-蛋白質序列長度篩選
-      │
-      ▼
-MiniFold 資料生成器
-      │
-      ├── 輸入特徵
-      │
-      └── 距離分類標籤
-                │
-                ▼
-        二維殘差神經網路
-          （2D ResNet）
-                │
-                ▼
-        七類距離分類預測
-                │
-                ▼
-        後續模型評估與分析
-```
-
-本專案目前聚焦於資料處理、模型載入、相容性調整及訓練流程建置，後續將繼續確認模型效能與預測結果。
-
-四、資料處理
-4.1 蛋白質資料讀取
-
-本專案使用包含蛋白質序列、演化資訊及結構資訊的資料紀錄，並透過 Python 進行資料檢查與篩選。
-
-目前曾檢查的資料欄位包括：
-```text
-[ID]：蛋白質紀錄識別碼。
-[PRIMARY]：蛋白質胺基酸序列。
-[EVOLUTIONARY]：演化相關資訊。
-[TERTIARY]：三維結構座標資訊。
-[DIST]：距離相關資料欄位。
-```
-
-4.2 序列長度篩選
-在初始資料處理階段，使用 Python 篩選胺基酸序列長度小於 200 的蛋白質紀錄。
-
-初始資料檢查結果如下：
-```text
-項目	數量
-原始蛋白質紀錄	10,333
-長度小於 200 的蛋白質	6,489
-長度大於或等於 200 的蛋白質	3,844
-```
-
-後續訓練使用的 Kaggle 資料集則記錄有 636 筆蛋白質紀錄。
+python
+DATA_PATH = "/kaggle/input/datasets/timjas/full-under-200-txt/full_under_200.txt"
 
 
-五、模型架構與輸入輸出
+資料內容包含蛋白質名稱、胺基酸序列、PSSM 及距離矩陣。
 
-目前使用的 MiniFold 模型屬於蛋白質殘基間距離分類任務，採用二維殘差神經網路處理殘基配對特徵。
+本次實驗選擇長度小於或等於 200 個胺基酸殘基的蛋白質作為訓練資料。
 
-5.1 模型輸入
+資料集統計
+資料類型	數量
+Protein Names	636
+Sequences	636
+PSSMs	636
+Distance Matrices	636
+Total Proteins	636
 
-實際載入模型後，取得的輸入形狀為：
-```text
-(None, 200, 200, 42)
-```
+資料集成功載入，共取得 636 筆蛋白質資料。
 
-各維度的意義如下：
+每筆資料包含：
 
-None：批次大小，可依訓練設定改變。
-第一個 200：蛋白質殘基位置維度。
-第二個 200：與另一個殘基位置配對的維度。
-42：每個位置配對所使用的特徵通道數。
+Protein ID：蛋白質識別名稱
+Sequence：胺基酸序列
+PSSM：位置特異性評分矩陣
+Distance Matrix：蛋白質殘基之間的 Ground Truth 距離矩陣
+3. 特徵工程（Feature Engineering）
 
-模型使用二維特徵表示蛋白質中不同殘基位置之間的關係。
+為了讓 ResNet 能夠處理蛋白質序列資訊，本專案將每筆蛋白質資料轉換為固定大小的二維特徵矩陣。
+
+所有輸入資料統一處理為 200 × 200。
+
+主要分為三個部分：
+
+3.1 胺基酸特徵轉換（Amino Acid Encoding）
+
+使用 wider() 函式，將胺基酸序列轉換為兩兩殘基之間的 One-Hot 特徵表示。
+
+python
+def wider(seq, l=200, n=20):
+
+    key = "HRKDENQSYTCPAVLIGFWM"
+    tensor = []
+
+    for i in range(l):
+        d2 = []
+
+        for j in range(l):
+
+            d1 = [
+                1 if (
+                    j < len(seq) and
+                    i < len(seq) and
+                    key[x] == seq[i] and
+                    key[x] == seq[j]
+                ) else 0
+                for x in range(n)
+            ]
+
+            d2.append(d1)
+
+        tensor.append(d2)
+
+    return np.array(tensor, dtype=np.float32)
 
 
+此函式將每一組殘基配對轉換為 20 個特徵 Channel。
 
-5.2 模型輸出
+3.2 PSSM 特徵轉換（PSSM Feature Extraction）
 
-實際載入模型後，取得的輸出形狀為：
-```text
-(None, 200, 200, 7)
-```
+使用 wider_pssm() 函式，將 PSSM 轉換為二維特徵矩陣。
 
-各維度的意義如下：
+特徵包含：
 
-None：批次大小。
-200 × 200：殘基位置配對矩陣。
-7：每一對殘基的七個距離類別輸出。
+20 個胺基酸 PSSM 配對平均值
+1 個 PSSM 配對乘積特徵
+1 個殘基位置關係特徵
 
-因此，目前使用的模型不是直接預測四個二面角表示值，而是針對每一對殘基輸出七個距離類別的預測值。
+總共產生 22 個 Feature Channels。
+
+python
+def wider_pssm(pssm, seq, l=200, n=20):
+
+    key_alpha = "ACDEFGHIKLMNPQRSTVWY"
+    tensor = []
+
+    for i in range(l):
+        d2 = []
+
+        for j in range(l):
+
+            if j < len(seq) and i < len(seq):
+
+                d1 = [
+                    (aa[i] + aa[j]) / 2
+                    for aa in pssm
+                ]
+
+                d1.append(
+                    pssm[key_alpha.index(seq[i])][i] *
+                    pssm[key_alpha.index(seq[j])][j]
+                )
+
+            else:
+                d1 = [0 for _ in range(n+1)]
+
+            d1.append(1 - abs(i-j)/200)
+
+            d2.append(d1)
+
+        tensor.append(d2)
+
+    return np.array(tensor, dtype=np.float32)
+
+3.3 距離矩陣轉換（Distance Matrix Processing）
+
+使用 prepare_distance() 函式，將原始距離矩陣轉換成分類標籤。
+
+所有距離矩陣統一填補至 200 × 200。
+
+距離分類如下：
+
+Class	Distance Range
+0	Padding / Invalid
+1	0–500
+2	500–750
+3	750–1000
+4	1000–1400
+5	1400–1700
+6	Greater than 1700
+
+透過 One-Hot Encoding 將距離矩陣轉換成 7 個 Channel。
+
+3.4 最終模型輸入格式
+特徵	Shape	Channels
+Amino Acid Features	200 × 200	20
+PSSM Features	200 × 200	22
+Model Input	200 × 200	42
+Model Output	200 × 200	7
+
+最終輸入及輸出格式：
+
+python
+X.shape = (200, 200, 42)
+Y.shape = (200, 200, 7)
 
 
-六、模型訓練設定
+每筆蛋白質資料都會經過相同的特徵工程流程。
 
-目前 Notebook 中使用的主要設定如下：
-```text
-設定項目	目前設定
-最大蛋白質紀錄數	636
-Batch size	2
-Crop size	200
-Padding size	200
-輸出類別數	7
-最佳化器	Adam
-初始學習率	0.001
-類別權重	七個類別均設為 1.0
-訓練輪數	曾設定為 1 epoch
-```
-上述內容是目前實驗的設定紀錄，不代表模型已經完成訓練或取得良好的預測效能。
+4. 模型架構（Model Architecture）
 
-目前也需要進一步確認訓練與驗證資料的劃分方式，以避免使用訓練資料評估模型而高估實際效能。
+本專案使用原始 MiniFold 專案中的 ResNet V2 架構。
 
-七、已完成的實作工作
+模型程式碼位置：
 
-根據目前的 Notebook 紀錄，已進行以下工作：
+text
+MiniFold/
+└── models/
+    └── distance_pipeline/
+        └── elu_resnet_2d_distances.py
 
-使用 Python 讀取蛋白質資料並檢查紀錄數量。
-篩選胺基酸序列長度小於 200 的蛋白質。
-設定 Kaggle 資料集路徑。
-調整部分舊版 Keras 的圖層匯入方式。
-修正已棄用的 NumPy 整數型別寫法。
-調整 Softmax 的運算軸設定。
-修改加權類別交叉熵損失函數的實作。
-載入既有模型並檢查輸入、輸出形狀。
-建立資料生成器並檢查輸入與目標張量。
-設定最佳化器、損失函數及模型訓練流程。
 
-以上工作是以既有 MiniFold 開源程式為基礎進行。原始專案的作者資訊及授權條款應予保留；後續也將進一步整理自行修改的程式內容與修改原因。
+模型建立方式：
 
-八、初步檢查結果
+python
+model = resnet_v2(
+    input_shape=(200, 200, 42),
+    depth=28,
+    num_classes=7
+)
 
-目前已取得以下資料生成器檢查結果：
-```text
-Proteins = 636
-Generator length = 318
+模型參數
+參數	設定
+Model Architecture	ResNet V2
+Network Depth	28
+Input Shape	200 × 200 × 42
+Output Shape	200 × 200 × 7
+Number of Classes	7
+Optimizer	Adam
+Learning Rate	0.001
+AMSGrad	True
+Loss Function	Weighted Categorical Crossentropy
+加權分類損失函數（Weighted Categorical Crossentropy）
 
-Input shape  = (2, 200, 200, 42)
-Target shape = (2, 200, 200, 7)
-```
+由於不同距離分類的資料數量存在明顯差異，因此使用加權 Categorical Crossentropy，調整不同類別對模型訓練的影響。
 
-在已檢查的批次中：
+python
+weights = np.array([
+    1e-07,
+    0.45,
+    1.65,
+    1.75,
+    0.73,
+    0.77,
+    0.145
+], dtype=np.float32)
 
-輸入張量的數值皆為有限值。
-目標張量的數值皆為有限值。
-目標張量最後一維的總和介於 1 至 1 之間。
 
-這些結果表示，在所檢查的批次中，資料生成器產生的張量具有預期的維度，且目標資料符合每個位置配對對應一個類別標籤的表示方式。
+透過不同的權重，讓模型在訓練時能夠考慮各個距離分類的差異。
 
-不過，這些檢查只能證明部分資料格式與數值狀態符合預期，不能直接代表模型已具備良好的預測能力。
+5. 模型訓練（Model Training）
+5.1 訓練集與驗證集切分
 
-九、目前限制與後續規劃
+本次實驗共有 636 筆蛋白質資料，使用 train_test_split 將資料分成訓練集與驗證集。
 
-目前仍有以下工作需要完成：
+python
+train_idx, val_idx = train_test_split(
+    np.arange(636),
+    test_size=64,
+    random_state=42,
+    shuffle=True
+)
 
-確認最終使用資料集的來源及篩選歷程。
-確認 42 個輸入特徵通道的實際定義。
-確認七個距離類別的區間與單位。
-確認模型是否完成訓練，以及訓練過程是否穩定。
-建立適當的訓練集與驗證集劃分。
-記錄實際訓練損失與驗證結果。
-使用合適的指標評估距離分類預測品質。
-依據研究結果評估後續蛋白質三維結構重建的可行性。
+資料集	蛋白質數量
+Training Set	572
+Validation Set	64
+Total	636
+5.2 訓練參數
+訓練項目	設定
+Epochs	35
+Batch Size	2
+Optimizer	Adam
+Learning Rate	0.001
+AMSGrad	Enabled
+Framework	TensorFlow / Keras
+Data Pipeline	tf.data.Dataset
+GPU Strategy	Multi-GPU Strategy
 
-後續將依據實際執行結果補充實驗紀錄，並逐步改善模型與資料處理流程。
+使用 TensorFlow tf.data.Dataset 建立資料載入流程，並透過 Batch 與 Prefetch 提升資料處理效率。
 
-十、原始專案與參考來源
-MiniFold 原始專案
+python
+train_dataset = train_dataset.batch(2).prefetch(1)
+val_dataset = val_dataset.batch(2).prefetch(1)
 
-GitHub：
-https://github.com/hypnopump/MiniFold
+5.3 模型訓練程式
+python
+history = model.fit(
+    train_dataset,
+    validation_data=val_dataset,
+    epochs=35,
+    steps_per_epoch=STEPS_PER_EPOCH,
+    validation_steps=VALIDATION_STEPS,
+    callbacks=callbacks,
+    verbose=1
+)
 
-本專案以 MiniFold 開源程式為實作基礎，並在 Kaggle 環境中進行部分程式修改與實驗。
+5.4 Keras 3 相容性調整
 
-原始作者、授權條款及相關研究引用資訊，將依據實際使用的版本與授權內容適當標示。
+由於原始 MiniFold 使用較舊版本的 Keras Import 寫法，因此調整部分程式碼以支援新版 Keras。
 
-蛋白質資料集的來源與引用方式，也應依照實際使用的資料版本補充。
+修改前：
 
-十一、專案狀態
+python
+from keras.layers.convolutional import Conv2D, Conv2DTranspose
+from keras.layers.pooling import MaxPooling2D, AveragePooling2D
 
-目前狀態：持續開發與實驗驗證中
 
-本專案記錄從蛋白質資料處理、既有模型理解、執行環境相容性調整，到模型訓練流程建置的實作過程。
+修改後：
 
-目前已完成部分資料檢查、模型載入及訓練設定，後續將持續驗證訓練結果、分析模型效能，並整理研究過程中的問題與改善方向。
+python
+from keras.layers import Conv2D, Conv2DTranspose
+from keras.layers import MaxPooling2D, AveragePooling2D
 
-本專案的目標不僅是執行既有模型，也希望透過實際實驗，建立對深度學習模型、資料處理與蛋白質結構預測方法的理解。
+
+此修改主要用於解決新版 Keras 的模組匯入相容性問題。
+
+6. 訓練結果視覺化（Training Visualization）
+
+本專案使用 Training History 繪製訓練過程中的 Accuracy 與 Loss 變化。
+
+6.1 Training vs Validation Accuracy
+
+檔案名稱：
+
+training_accuracy.png
+
+比較訓練集與驗證集在不同 Epoch 的 Accuracy 變化。
+
+主要觀察：
+
+模型是否逐漸學習特徵
+訓練與驗證表現是否存在差距
+是否有 Overfitting 現象
+模型學習是否穩定
+6.2 Training vs Validation Loss
+
+檔案名稱：
+
+training_loss.png
+
+比較 Training Loss 與 Validation Loss 的變化。
+
+主要觀察：
+
+模型是否逐漸收斂
+Loss 是否持續下降
+訓練過程是否穩定
+是否存在過度擬合現象
+7. 訓練模型權重（Trained Model Weights）
+
+訓練完成後，模型權重儲存為：
+
+text
+best.weights.h5
+
+
+模型權重位置：
+
+python
+/kaggle/input/datasets/timjas/model-minifold/best.weights.h5
+
+
+訓練紀錄：
+
+python
+/kaggle/input/datasets/timjas/model-minifold/training_log.csv
+
+載入已訓練模型
+
+後續進行蛋白質預測時，不需要重新訓練模型，只需要建立相同的模型架構並載入權重。
+
+python
+model = resnet_v2(
+    input_shape=(200, 200, 42),
+    depth=28,
+    num_classes=7
+)
+
+model.load_weights(WEIGHT_PATH)
+
+
+如此即可使用先前訓練完成的模型進行預測與評估。
+
+8. 模型評估（Model Evaluation）
+
+本次使用全部 636 筆蛋白質資料進行預測與評估。
+
+總共處理：
+
+8,442,750 組 Residue Pairs
+
+8.1 整體評估結果
+評估指標	結果
+Overall Accuracy	42.17%
+Macro Precision	38.70%
+Macro Recall	47.61%
+Macro F1-score	39.05%
+Prediction Symmetry	60.00%
+Total Proteins	636
+Total Residue Pairs	8,442,750
+
+整體分類準確率：
+
+text
+Overall Accuracy: 0.42168854934707295
+
+
+模型整體 Accuracy 約為 42.17%。
+
+9. 各距離分類效能分析（Per-Class Evaluation）
+
+以下為六個有效距離分類的 Precision、Recall 與 F1-score。
+
+Distance Class	Precision	Recall	F1-score
+0–500	36%	81%	50%
+500–750	56%	52%	54%
+750–1000	15%	46%	23%
+1000–1400	24%	35%	29%
+1400–1700	18%	29%	23%
+Greater than 1700	82%	43%	57%
+分類結果觀察
+
+0–500
+
+Recall 達到 81%。
+模型能夠辨識大部分此分類的 Residue Pairs。
+但 Precision 只有 36%，表示仍存在不少錯誤預測。
+
+500–750
+
+F1-score 為 54%。
+是六個距離分類中表現較好的類別。
+Precision 與 Recall 相對平衡。
+
+750–1000
+
+Precision 僅有 15%。
+是目前模型需要改善的分類之一。
+模型容易將其他距離分類錯誤預測為此類別。
+
+1000–1700
+
+兩個分類的 Precision 與 Recall 都不理想。
+模型對於中間距離區間的辨識能力仍然不足。
+
+Greater than 1700
+
+Precision 達到 82%，是所有分類中最高的類別。
+但 Recall 只有 43%。
+模型明顯低估此距離分類的數量。
+10. 距離分類分布分析（Class Distribution）
+
+比較 Ground Truth 與 Prediction 在不同距離分類中的數量。
+
+Distance Class	Ground Truth	Prediction
+0–500	316,718	717,560
+500–750	371,234	343,465
+750–1000	459,500	1,373,511
+1000–1400	1,187,842	1,685,039
+1400–1700	1,052,378	1,670,662
+Greater than 1700	5,055,078	2,651,938
+分析結果
+
+從 Ground Truth 與 Prediction 的數量比較，可以觀察到：
+
+0–500 的預測數量高於實際數量。
+750–1000 的預測數量明顯偏高。
+1000–1400 與 1400–1700 也存在過度預測現象。
+Greater than 1700 的預測數量明顯低於 Ground Truth。
+
+其中 Greater than 1700 的差距最大。
+
+Ground Truth 有 5,055,078 組 Residue Pairs，但 Prediction 只有 2,651,938 組。
+
+這顯示模型對於較大距離的分類存在明顯低估問題。
+
+11. 預測矩陣對稱性分析（Symmetry Analysis）
+
+本次評估中，最值得注意的問題是模型預測矩陣的對稱性不足。
+
+11.1 對稱性評估結果
+Matrix	Symmetry
+Ground Truth	100%
+Prediction	60.00%
+
+對於蛋白質距離矩陣而言，任意兩個胺基酸殘基之間的距離應符合：
+
+𝐷
+𝑖
+𝑗
+=
+𝐷
+𝑗
+𝑖
+
+也就是說：
+
+Residue i 到 Residue j 的距離
+Residue j 到 Residue i 的距離
+
+理論上應該完全相同。
+
+因此 Ground Truth Distance Matrix 應具有 100% 的對稱性。
+
+然而，本次模型的 Prediction Symmetry 只有約 60%。
+
+11.2 問題原因
+
+目前使用的 ResNet 是一般的 2D CNN 架構。
+
+雖然模型可以學習不同 Residue Pairs 之間的特徵關係，但模型本身並沒有強制輸出矩陣必須符合對稱性。
+
+因此可能出現：
+
+𝑃
+𝑖
+𝑗
+≠
+𝑃
+𝑗
+𝑖
+
+這代表模型對於相同的殘基配對，可能因為矩陣位置不同而產生不同的預測結果。
+
+這不代表模型完全訓練失敗，而是顯示目前模型架構在對稱性方面仍有改善空間。
+
+11.3 未來改善方向
+
+後續可以考慮：
+
+Symmetric Post-processing：在預測完成後，透過轉置矩陣進行對稱化處理。
+Symmetry-aware Loss：在 Loss Function 中加入對稱性限制。
+Symmetric Feature Engineering：改善輸入特徵的對稱性設計。
+Symmetric Architecture：設計能夠直接保證輸出對稱性的模型架構。
+Class Balancing：改善不同距離分類之間的資料不平衡問題。
+
+對稱性將會是後續模型改善的重要研究方向。
+
+12. 評估結果視覺化（Evaluation Visualization）
+
+本專案產生多張圖表，用於比較 Ground Truth 與模型 Prediction 的差異。
+
+12.1 Ground Truth vs Prediction
+
+01_ground_truth_vs_prediction.png
+
+比較實際距離分類矩陣與模型預測矩陣。
+
+12.2 Symmetry Comparison
+
+02_symmetry.png
+
+比較：
+
+Ground Truth
+Ground Truth Transpose
+Prediction
+Prediction Transpose
+
+用來觀察模型預測矩陣的對稱性。
+
+12.3 Class Distribution
+
+03_class_distribution.png
+
+比較 Ground Truth 與 Prediction 在六個有效距離分類中的數量差異。
+
+12.4 Prediction Accuracy
+
+04_prediction_accuracy.png
+
+視覺化模型的預測準確率。
+
+12.5 Training History
+
+05_training_history.png
+
+顯示模型訓練過程中的 Accuracy 與 Loss 變化。
+
+12.6 Confusion Matrix
+
+confusion_matrix.png
+
+呈現各個距離分類之間的預測結果與錯誤分類情況。
+
+12.7 Per-Class Prediction Metrics
+
+per_class_metrics.png
+
+比較各距離分類的 Precision、Recall 與 F1-score。
+
+13. 評估輸出檔案（Evaluation Output）
+
+所有評估結果儲存於：
+
+text
+/kaggle/working/MiniFold_Evaluation
+
+
+輸出資料夾結構：
+
+text
+MiniFold_Evaluation/
+│
+├── 01_ground_truth_vs_prediction.png
+├── 02_symmetry.png
+├── 03_class_distribution.png
+├── 04_prediction_accuracy.png
+├── 05_training_history.png
+│
+├── class_distribution.csv
+├── evaluation_summary.json
+├── prediction_metrics.csv
+└── protein_evaluation.csv
+
+
+完整評估結果另外壓縮為：
+
+text
+MiniFold_Evaluation.zip
+
+
+其中包含預測視覺化圖表、分類統計資料及各蛋白質的評估結果。
+
+14. 實驗結果總結（Key Findings）
+
+本次成功使用 636 筆蛋白質資料完成 MiniFold-based ResNet 模型的訓練與評估。
+
+主要成果如下：
+
+資料集建立成功：成功載入 636 筆蛋白質名稱、序列、PSSM 與距離矩陣。
+特徵工程完成：將蛋白質資料轉換為 200 × 200 × 42 的模型輸入。
+模型訓練完成：使用 ResNet V2，Depth 28，進行 35 個 Epoch 的訓練。
+模型預測完成：成功對 636 筆蛋白質進行距離分類預測。
+整體準確率：Overall Accuracy 達到 42.17%。
+分類效能分析：不同距離區間具有不同的 Precision、Recall 與 F1-score。
+對稱性問題：Ground Truth Symmetry 為 100%，但 Prediction Symmetry 只有約 60%。
+
+其中，預測矩陣的對稱性是目前最需要進一步研究與改善的問題。
+
+15. 未來研究方向（Future Improvements）
+
+針對本次實驗結果，未來可以從以下方向改善：
+
+改善 Distance Class 的資料不平衡問題。
+嘗試不同的 Weighted Loss 配置。
+在 Loss Function 中加入 Symmetry Constraint。
+研究能夠保證輸出對稱性的神經網路架構。
+改善 750–1000、1000–1400 及 1400–1700 的分類能力。
+比較不同 ResNet Depth 對預測結果的影響。
+嘗試不同的 Learning Rate 與 Batch Size。
+研究 Prediction Post-processing 對最終結果的影響。
+
+透過上述改善，希望能夠提升模型的距離分類準確率，並使預測結果更符合蛋白質距離矩陣的基本特性。
+
+16. 結論（Conclusion）
+
+本專案成功建立一套基於 MiniFold 與 ResNet V2 的蛋白質距離預測流程，涵蓋資料集前處理、特徵工程、模型訓練、預測及評估。
+
+使用 636 筆蛋白質資料進行實驗，最終模型達到：
+
+Evaluation Metric	Result
+Overall Accuracy	42.17%
+Macro Precision	38.70%
+Macro Recall	47.61%
+Macro F1-score	39.05%
+Prediction Symmetry	60.00%
+
+實驗結果顯示，模型已具備一定程度的蛋白質殘基距離分類能力，但在不同距離區間的分類表現及預測矩陣對稱性方面仍有改善空間。
+
+本次研究也找出一般 2D ResNet 架構在蛋白質距離矩陣預測上的一項重要限制，可作為後續模型架構與訓練策略改良的研究基礎。
+
+17. 參考資料（References）
+MiniFold Original Repository
+TensorFlow 官方文件
+Keras 官方文件
+NumPy 官方文件
+Scikit-learn 官方文件
+
+專案名稱： MiniFold Protein Distance Prediction
+
+模型架構： ResNet V2 (Depth 28)
+
+訓練資料： 636 Proteins
+
+輸入特徵： Amino Acid Sequence + PSSM
+
+輸入維度： 200 × 200 × 42
+
+輸出維度： 200 × 200 × 7
+
+訓練 Epochs： 35
+
+模型權重： best.weights.h5
+
+開發環境： Kaggle Notebook / Python / TensorFlow / Keras
