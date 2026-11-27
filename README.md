@@ -462,15 +462,17 @@ Distance Class	Ground Truth	Prediction
 1000–1400	1,187,842	1,685,039
 1400–1700	1,052,378	1,670,662
 Greater than 1700	5,055,078	2,651,938
-分析結果
+
 ```
+
+分析結果
+
 從 Ground Truth 與 Prediction 的數量比較，可以觀察到：
-```text
 0–500 的預測數量高於實際數量。
 750–1000 的預測數量明顯偏高。
 1000–1400 與 1400–1700 也存在過度預測現象。
 Greater than 1700 的預測數量明顯低於 Ground Truth。
-```text
+
 其中 Greater than 1700 的差距最大。
 
 Ground Truth 有 5,055,078 組 Residue Pairs，但 Prediction 只有 2,651,938 組。
@@ -482,11 +484,14 @@ Ground Truth 有 5,055,078 組 Residue Pairs，但 Prediction 只有 2,651,938 �
 本次評估中，最值得注意的問題是模型預測矩陣的對稱性不足。
 
 11.1 對稱性評估結果
+/*
 Matrix	Symmetry
 Ground Truth	100%
 Prediction	60.00%
+*/
 
 對於蛋白質距離矩陣而言，任意兩個胺基酸殘基之間的距離應符合：
+
 ```text
 𝐷
 𝑖
