@@ -466,7 +466,7 @@ Greater than 1700	5,055,078	2,651,938
 ```
 
 分析結果
-
+```text
 從 Ground Truth 與 Prediction 的數量比較，可以觀察到：
 0–500 的預測數量高於實際數量。
 750–1000 的預測數量明顯偏高。
@@ -476,7 +476,7 @@ Greater than 1700 的預測數量明顯低於 Ground Truth。
 其中 Greater than 1700 的差距最大。
 
 Ground Truth 有 5,055,078 組 Residue Pairs，但 Prediction 只有 2,651,938 組。
-
+```
 這顯示模型對於較大距離的分類存在明顯低估問題。
 
 11. 預測矩陣對稱性分析（Symmetry Analysis）
