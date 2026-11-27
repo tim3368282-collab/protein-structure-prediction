@@ -70,7 +70,7 @@ Distance Matrix：蛋白質殘基之間的 Ground Truth 距離矩陣
 3.1 胺基酸特徵轉換（Amino Acid Encoding）
 
 使用 wider() 函式，將胺基酸序列轉換為兩兩殘基之間的 One-Hot 特徵表示。
-
+```text
 python
 def wider(seq, l=200, n=20):
 
@@ -97,7 +97,7 @@ def wider(seq, l=200, n=20):
         tensor.append(d2)
 
     return np.array(tensor, dtype=np.float32)
-
+```
 
 此函式將每一組殘基配對轉換為 20 個特徵 Channel。
 
@@ -112,7 +112,7 @@ def wider(seq, l=200, n=20):
 1 個殘基位置關係特徵
 
 總共產生 22 個 Feature Channels。
-
+```text
 python
 def wider_pssm(pssm, seq, l=200, n=20):
 
@@ -146,6 +146,7 @@ def wider_pssm(pssm, seq, l=200, n=20):
         tensor.append(d2)
 
     return np.array(tensor, dtype=np.float32)
+```
 
 3.3 距離矩陣轉換（Distance Matrix Processing）
 
@@ -154,7 +155,7 @@ def wider_pssm(pssm, seq, l=200, n=20):
 所有距離矩陣統一填補至 200 × 200。
 
 距離分類如下：
-
+```text
 Class	Distance Range
 0	Padding / Invalid
 1	0–500
@@ -163,10 +164,11 @@ Class	Distance Range
 4	1000–1400
 5	1400–1700
 6	Greater than 1700
-
+```text
 透過 One-Hot Encoding 將距離矩陣轉換成 7 個 Channel。
 
 3.4 最終模型輸入格式
+```text
 特徵	Shape	Channels
 Amino Acid Features	200 × 200	20
 PSSM Features	200 × 200	22
@@ -178,7 +180,7 @@ Model Output	200 × 200	7
 python
 X.shape = (200, 200, 42)
 Y.shape = (200, 200, 7)
-
+```
 
 每筆蛋白質資料都會經過相同的特徵工程流程。
 
@@ -187,24 +189,25 @@ Y.shape = (200, 200, 7)
 本專案使用原始 MiniFold 專案中的 ResNet V2 架構。
 
 模型程式碼位置：
-
+```text
 text
 MiniFold/
 └── models/
     └── distance_pipeline/
         └── elu_resnet_2d_distances.py
-
+```
 
 模型建立方式：
-
+```text
 python
 model = resnet_v2(
     input_shape=(200, 200, 42),
     depth=28,
     num_classes=7
 )
-
+```
 模型參數
+```text
 參數	設定
 Model Architecture	ResNet V2
 Network Depth	28
@@ -216,9 +219,9 @@ Learning Rate	0.001
 AMSGrad	True
 Loss Function	Weighted Categorical Crossentropy
 加權分類損失函數（Weighted Categorical Crossentropy）
-
+```
 由於不同距離分類的資料數量存在明顯差異，因此使用加權 Categorical Crossentropy，調整不同類別對模型訓練的影響。
-
+```text
 python
 weights = np.array([
     1e-07,
@@ -229,7 +232,7 @@ weights = np.array([
     0.77,
     0.145
 ], dtype=np.float32)
-
+```
 
 透過不同的權重，讓模型在訓練時能夠考慮各個距離分類的差異。
 
@@ -237,7 +240,7 @@ weights = np.array([
 5.1 訓練集與驗證集切分
 
 本次實驗共有 636 筆蛋白質資料，使用 train_test_split 將資料分成訓練集與驗證集。
-
+```text
 python
 train_idx, val_idx = train_test_split(
     np.arange(636),
@@ -245,7 +248,8 @@ train_idx, val_idx = train_test_split(
     random_state=42,
     shuffle=True
 )
-
+```
+```text
 資料集	蛋白質數量
 Training Set	572
 Validation Set	64
@@ -260,14 +264,16 @@ AMSGrad	Enabled
 Framework	TensorFlow / Keras
 Data Pipeline	tf.data.Dataset
 GPU Strategy	Multi-GPU Strategy
+```
 
 使用 TensorFlow tf.data.Dataset 建立資料載入流程，並透過 Batch 與 Prefetch 提升資料處理效率。
-
+```text
 python
 train_dataset = train_dataset.batch(2).prefetch(1)
 val_dataset = val_dataset.batch(2).prefetch(1)
-
+```
 5.3 模型訓練程式
+```text
 python
 history = model.fit(
     train_dataset,
@@ -278,24 +284,24 @@ history = model.fit(
     callbacks=callbacks,
     verbose=1
 )
-
+```
 5.4 Keras 3 相容性調整
 
 由於原始 MiniFold 使用較舊版本的 Keras Import 寫法，因此調整部分程式碼以支援新版 Keras。
 
 修改前：
-
+```text
 python
 from keras.layers.convolutional import Conv2D, Conv2DTranspose
 from keras.layers.pooling import MaxPooling2D, AveragePooling2D
-
+```
 
 修改後：
-
+```text
 python
 from keras.layers import Conv2D, Conv2DTranspose
 from keras.layers import MaxPooling2D, AveragePooling2D
-
+```
 
 此修改主要用於解決新版 Keras 的模組匯入相容性問題。
 
@@ -306,9 +312,9 @@ from keras.layers import MaxPooling2D, AveragePooling2D
 6.1 Training vs Validation Accuracy
 
 檔案名稱：
-
-training_accuracy.png
-
+```text
+training_accuracy.png @@
+```
 比較訓練集與驗證集在不同 Epoch 的 Accuracy 變化。
 
 主要觀察：
@@ -317,12 +323,13 @@ training_accuracy.png
 訓練與驗證表現是否存在差距
 是否有 Overfitting 現象
 模型學習是否穩定
+
 6.2 Training vs Validation Loss
 
 檔案名稱：
-
-training_loss.png
-
+```text
+training_loss.png@@
+```
 比較 Training Loss 與 Validation Loss 的變化。
 
 主要觀察：
@@ -331,6 +338,7 @@ training_loss.png
 Loss 是否持續下降
 訓練過程是否穩定
 是否存在過度擬合現象
+
 7. 訓練模型權重（Trained Model Weights）
 
 訓練完成後，模型權重儲存為：
@@ -340,20 +348,20 @@ best.weights.h5
 
 
 模型權重位置：
-
+```text
 python
 /kaggle/input/datasets/timjas/model-minifold/best.weights.h5
-
+```
 
 訓練紀錄：
-
+```text
 python
 /kaggle/input/datasets/timjas/model-minifold/training_log.csv
-
+```
 載入已訓練模型
 
 後續進行蛋白質預測時，不需要重新訓練模型，只需要建立相同的模型架構並載入權重。
-
+```text
 python
 model = resnet_v2(
     input_shape=(200, 200, 42),
@@ -362,14 +370,14 @@ model = resnet_v2(
 )
 
 model.load_weights(WEIGHT_PATH)
-
+```
 
 如此即可使用先前訓練完成的模型進行預測與評估。
 
 8. 模型評估（Model Evaluation）
 
 本次使用全部 636 筆蛋白質資料進行預測與評估。
-
+```text
 總共處理：
 
 8,442,750 組 Residue Pairs
@@ -383,7 +391,7 @@ Macro F1-score	39.05%
 Prediction Symmetry	60.00%
 Total Proteins	636
 Total Residue Pairs	8,442,750
-
+```
 整體分類準確率：
 
 text
@@ -436,7 +444,7 @@ Precision 達到 82%，是所有分類中最高的類別。
 10. 距離分類分布分析（Class Distribution）
 
 比較 Ground Truth 與 Prediction 在不同距離分類中的數量。
-
+```text
 Distance Class	Ground Truth	Prediction
 0–500	316,718	717,560
 500–750	371,234	343,465
@@ -445,14 +453,14 @@ Distance Class	Ground Truth	Prediction
 1400–1700	1,052,378	1,670,662
 Greater than 1700	5,055,078	2,651,938
 分析結果
-
+```
 從 Ground Truth 與 Prediction 的數量比較，可以觀察到：
-
+```text
 0–500 的預測數量高於實際數量。
 750–1000 的預測數量明顯偏高。
 1000–1400 與 1400–1700 也存在過度預測現象。
 Greater than 1700 的預測數量明顯低於 Ground Truth。
-
+```text
 其中 Greater than 1700 的差距最大。
 
 Ground Truth 有 5,055,078 組 Residue Pairs，但 Prediction 只有 2,651,938 組。
@@ -469,7 +477,7 @@ Ground Truth	100%
 Prediction	60.00%
 
 對於蛋白質距離矩陣而言，任意兩個胺基酸殘基之間的距離應符合：
-
+```text
 𝐷
 𝑖
 𝑗
@@ -477,7 +485,7 @@ Prediction	60.00%
 𝐷
 𝑗
 𝑖
-
+```
 也就是說：
 
 Residue i 到 Residue j 的距離
@@ -496,7 +504,7 @@ Residue j 到 Residue i 的距離
 雖然模型可以學習不同 Residue Pairs 之間的特徵關係，但模型本身並沒有強制輸出矩陣必須符合對稱性。
 
 因此可能出現：
-
+```text
 𝑃
 𝑖
 𝑗
@@ -504,7 +512,7 @@ Residue j 到 Residue i 的距離
 𝑃
 𝑗
 𝑖
-
+```
 這代表模型對於相同的殘基配對，可能因為矩陣位置不同而產生不同的預測結果。
 
 這不代表模型完全訓練失敗，而是顯示目前模型架構在對稱性方面仍有改善空間。
